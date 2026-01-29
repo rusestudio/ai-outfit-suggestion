@@ -12,12 +12,11 @@ from database import userData
 from img_gen import generate_images
 
 # gemini text api define
-genai.configure(api_key="AIzaSyC8YOsoIj5YuWex1muFSwXCGwcDOaAUUAY")
+genai.configure(api_key=API_KEY)
 
 # api define picture
-#api_key = "sk-JMYyFEVPfYvhzmfZmh3i5YRB7oEAM2DUYl7oTXfLANbGltQ1"
-#api_url = "https://api.stability.ai/v2beta/stable-image/generate/sd3"
-
+api_key = API_KEY_IMAGE
+api_url = API_URL_IMAGE
 
 # send prompt to gemini
 def get_result(prompt: str):
