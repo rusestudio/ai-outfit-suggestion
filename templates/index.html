@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>외출 정보 입력</title>
+</head>
+<body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .form-header h2 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        input[type="date"],
+        input[type="text"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input[type="date"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .radio-group label:hover {
+            color: #667eea;
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .weather-result {
+            background-color: #f8f9fa;
+            border: 2px solid #e1e5e9;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1rem;
+            white-space: pre-wrap;
+            transition: all 0.3s ease;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 40px 30px;
+                margin: 10px;
+                max-width: 400px;
+            }
+            
+            .form-header h2 {
+                font-size: 2rem;
+            }
+
+            .radio-group {
+                gap: 20px;
+            }
+        }
+    </style>
+
+    <div class="form-container">
+        <div class="form-header">
+            <h2>외출하실 정보를 입력해주세요</h2>
+        </div>
+
+        <form id="information">
+            <div class="form-group">
+                <label for="when">외출하실 날짜를 선택해주세요.</label>
+                <input type="date" id="when" name="when" required>
+            </div>
+
+            <div class="form-group">
+                <label>활동 환경을 선택해주세요.</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="environment" value="outside"> 실외</label>
+                    <label><input type="radio" name="environment" value="inside"> 실내</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="destination">활동하실 장소를 입력해주세요.</label>
+                <input type="text" id="destination" name="destination" placeholder="목적지를 입력하세요" required>
+            </div>
+
+            <button type="button" id="submitBtn" class="submit-btn">제출 및 날씨 요청</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', function () {
+            const when = document.getElementById('when').value;
+            const destination = document.getElementById('destination').value;
+            const environment = document.querySelector('input[name="environment"]:checked');
+
+            if (!when || !destination || !environment) {
+                alert("날짜, 활동 환경, 목적지를 모두 입력해주세요.");
+                return;
+            }
+
+            if (!navigator.geolocation) {
+                alert("이 브라우저는 위치 정보를 지원하지 않습니다.");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(async function (position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+
+                if (accuracy > 5000) {
+                        "정확한 위치를 가져오지 못했습니다 (정확도: " + accuracy + "m)";
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            submit_data: {
+                                when: when,
+                                destination: destination,
+                                environment: environment.value
+                            },
+                            location: {
+                                latitude: latitude,
+                                longitude: longitude
+                            }
+                        })
+                    });
+
+                    if (response.ok) {
+                        const html = await response.text();
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    } else {
+                        const errorText = await response.text();
+                        document.getElementById("testresult").textContent = "오류 응답:\n" + errorText;
+                    }
+
+                } catch (err) {
+                    document.getElementById("testresult").textContent = "에러 발생2: " + err.message;
+                }
+
+            }, function (error) {
+                alert("위치 정보를 가져올 수 없습니다: " + error.message);
+            }, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+        });
+    </script>
+</body>
+</html>
