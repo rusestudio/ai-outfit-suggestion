@@ -4,9 +4,6 @@ import base64
 import json
 import time
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 STABILITY_API_KEY = os.getenv("STABILITY_API_KEY")
 STABILITY_API_URL = "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image"

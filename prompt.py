@@ -1,21 +1,18 @@
 import re
-from database import userData
 
 #create prompt
-def build_prompt(userData,weather_data, clothes_data, user_input):
-        #you are age, sex, height, body weight. //to be change based on user login data
+def build_prompt(weather_data, clothes_data, user_input):
+        #you are age, sex, height, body weight. 
+        # //to be change based on user login data
         prompt = f"""
-        your are a {userData['gender']} who is
-        {userData['age']} years old,
-        height  {userData['height']} cm,
-        weight {userData['weight']} kg
-
+        You are a fashion assistant
         
-        Current weather conditions:
-        - Temperature: {weather_data['temperature']}°C
-        - Wind: {weather_data['wind']} m/h
-        - Rain: {weather_data['rain']} % 
-        - Humidity: {weather_data['humidity']}%
+          Current weather conditions:
+          - Temperature: {weather_data.get('temperature', 'unknown')}°C
+          - Wind: {weather_data.get('wind', 'unknown')}
+          - Rain: {weather_data.get('rain', 'unknown')}%
+          - Humidity: {weather_data.get('humidity', 'unknown')}%
+
 
         Available clothing options include the following types:
         {', '.join(clothes_data['types'])}
@@ -24,9 +21,14 @@ def build_prompt(userData,weather_data, clothes_data, user_input):
         {', '.join(clothes_data['materials'])}
 
 
-        Location to wear the outfit would be:
-        either on the today {user_input['destination']},
-        or other day on {user_input['when']} at {user_input['destination']}.
+               Destination:
+          {user_input['destination']}
+
+          Date:
+          {user_input['when']}
+
+          Environment:
+          {user_input['environment']}
 
 
         Please suggest 3 outfits suitable for the conditions and location.

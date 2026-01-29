@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 import re
 import uuid
 
@@ -8,15 +9,16 @@ import requests
 
 from data_to_be_prompt import clothes_data
 from prompt import build_prompt, image_prompt
-from database import userData
 from img_gen import generate_images
+
+API_KEY = os.getenv("API_KEY")
 
 # gemini text api define
 genai.configure(api_key=API_KEY)
 
 # api define picture
-api_key = API_KEY_IMAGE
-api_url = API_URL_IMAGE
+api_key = os.getenv("API_KEY_IMAGE")
+api_url = os.getenv("API_URL_IMAGE")
 
 # send prompt to gemini
 def get_result(prompt: str):
