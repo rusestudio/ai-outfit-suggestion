@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Result</title>
+    <script src="https://js.puter.com/v2/"></script>
   <style>
         * {
             margin: 0;
@@ -70,6 +71,25 @@
         .result-image:hover {
             transform: scale(1.05);
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-container {
+            width: 100%;
+            max-width: 350px;
+            height: 400px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading {
+            color: #666;
+            font-size: 1.2rem;
+            text-align: center;
         }
 
         .result-text {
@@ -165,11 +185,36 @@
         <div class="results-grid">
             {% for item in suggestions %}
                 <div class="result-card">
-                    <img src="{{ item.image_base64 }}" alt="Image" class="result-image">
+                    <div id="image-container-{{ loop.index }}" class="image-container">
+                        <div class="loading">Generating image...</div>
+                    </div>
                     <p class="result-text">{{ item.explanation }}</p>
                 </div>
             {% endfor %}
         </div>
     </div>
+    
+    <script>
+        const suggestions = {{ suggestions | tojson }};
+        
+        async function generateImage(prompt, containerId) {
+            const container = document.getElementById(containerId);
+            try {
+                const imageElement = await puter.ai.txt2img(prompt, { model: "flux-1-schnell", quality: "standard" });
+                imageElement.className = 'result-image';
+                container.innerHTML = '';
+                container.appendChild(imageElement);
+            } catch (error) {
+                container.innerHTML = '<div class="loading">Failed to generate image</div>';
+                console.error('Image generation failed:', error);
+            }
+        }
+        
+        // Generate images for all suggestions
+        suggestions.forEach((item, index) => {
+            const containerId = `image-container-${index + 1}`;
+            generateImage(item.image_prompt, containerId);
+        });
+    </script>
 </body>
 </html>

@@ -201,6 +201,8 @@
 
             <button type="button" id="submitBtn" class="submit-btn">제출 및 날씨 요청</button>
         </form>
+
+        <div id="testresult" class="weather-result" style="display: none;"></div>
     </div>
 
     <script>
@@ -255,11 +257,15 @@
                         document.close();
                     } else {
                         const errorText = await response.text();
-                        document.getElementById("testresult").textContent = "오류 응답:\n" + errorText;
+                        const resultDiv = document.getElementById("testresult");
+                        resultDiv.style.display = "block";
+                        resultDiv.textContent = "오류 응답:\n" + errorText;
                     }
 
                 } catch (err) {
-                    document.getElementById("testresult").textContent = "에러 발생2: " + err.message;
+                    const resultDiv = document.getElementById("testresult");
+                    resultDiv.style.display = "block";
+                    resultDiv.textContent = "에러 발생: " + err.message;
                 }
 
             }, function (error) {

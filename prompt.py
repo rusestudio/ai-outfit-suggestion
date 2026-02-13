@@ -35,7 +35,7 @@ def build_prompt(weather_data, clothes_data, user_input):
         for each outfit, provide:
         -suggestions materials,types, and colors in 3 points
         -simple explain why it fits the weather and location in one sentence
-        -a short prompt for an image generation model to draw the outfit.
+        -**Image Prompt:** "a short prompt for an image generation model to draw the outfit."
 
         Respond in clear text.
         """

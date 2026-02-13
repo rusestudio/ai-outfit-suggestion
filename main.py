@@ -5,6 +5,9 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse , FileResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from data_to_be_prompt import clothes_data
 from llm_model_suggest import main as llm_main

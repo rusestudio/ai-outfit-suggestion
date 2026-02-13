@@ -1,28 +1,19 @@
-import base64
-import json
 import os
 import re
-import uuid
 
 import google.generativeai as genai
-import requests
 
 from data_to_be_prompt import clothes_data
 from prompt import build_prompt, image_prompt
-from img_gen import generate_images
 
 API_KEY = os.getenv("API_KEY")
 
-# gemini text api define
-genai.configure(api_key=API_KEY)
-
-# api define picture
-api_key = os.getenv("API_KEY_IMAGE")
-api_url = os.getenv("API_URL_IMAGE")
-
 # send prompt to gemini
 def get_result(prompt: str):
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    if not API_KEY:
+        raise ValueError("API_KEY environment variable not set")
+    genai.configure(api_key=API_KEY)
+    model = genai.GenerativeModel("gemini-1.5-flash")
     response = model.generate_content(prompt)
     return response.text
 
@@ -70,7 +61,7 @@ def save_explaination(result):
 
 def main(user, weather_data, clothes_data, user_input):
     # call def build prompt
-    prompt = build_prompt(user, weather_data, clothes_data, user_input)
+    prompt = build_prompt(weather_data, clothes_data, user_input)
     # call gemini
     result = get_result(prompt)
     #print(result)
@@ -78,20 +69,12 @@ def main(user, weather_data, clothes_data, user_input):
     explanations = save_explaination(result)
     # prompt_text
     imageprompts = image_prompt(result)
-    image_base64_list = generate_images(imageprompts)
 
     suggestions = []
     for i in range(3):
         suggestions.append({
-            "image_base64": image_base64_list[i] if i < len(image_base64_list) else "",
+            "image_prompt": imageprompts[i] if i < len(imageprompts) else "fashion outfit suitable for the current weather and location",
             "explanation": explanations[i] if i < len(explanations) else ""
         })
 
     return suggestions
-
-
-# Only run this if the file is executed directly
-if __name__ == "__main__":
-    suggest = main()
-    for s in suggest:
-        print(json.dumps(s, indent=2))

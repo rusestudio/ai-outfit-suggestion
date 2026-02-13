@@ -1,30 +1,32 @@
 import requests
 import os
 
-GOOGLE_WEATHER_API_KEY = os.getenv("API_KEY_WEATHER")
+API_KEY_WEATHER = os.getenv("API_KEY_WEATHER")
 
 def get_weather(latitude: float, longitude: float):
     """
-    TEMP implementation using Open-Meteo style response.
-    Replace URL later with Google-backed service if needed.
+    Fetch current weather using OpenWeatherMap API.
+    Returns temperature in Celsius, humidity %, precipitation (rain in mm), wind speed in m/s.
     """
+    if not API_KEY_WEATHER:
+        raise ValueError("API_KEY_WEATHER environment variable not set")
 
     url = (
-        "https://api.open-meteo.com/v1/forecast"
-        f"?latitude={latitude}"
-        f"&longitude={longitude}"
-        "&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m"
+        "https://api.openweathermap.org/data/2.5/weather"
+        f"?lat={latitude}&lon={longitude}&appid={API_KEY_WEATHER}&units=metric"
     )
 
     response = requests.get(url, timeout=10)
     response.raise_for_status()
     data = response.json()
 
-    current = data.get("current", {})
+    main = data.get("main", {})
+    wind = data.get("wind", {})
+    rain = data.get("rain", {}).get("1h", 0)  # precipitation in last hour, default 0
 
     return {
-        "temperature": current.get("temperature_2m"),
-        "humidity": current.get("relative_humidity_2m"),
-        "rain": current.get("precipitation"),
-        "wind": current.get("wind_speed_10m"),
+        "temperature": main.get("temp"),
+        "humidity": main.get("humidity"),
+        "rain": rain,
+        "wind": wind.get("speed"),
     }
