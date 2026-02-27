@@ -99,7 +99,7 @@ async def submit_form(submit: SubmitRequest, request: Request):
                 else:
                     item["image_url"] = None
             except Exception as e:
-                logger.error(f"Image gen failed for suggestion {idx+1}: {e}")
+                logger.error(f"Image gen failed for suggestion{idx+1}: {e}")
                 item["image_url"] = None
 
         return templates.TemplateResponse(
