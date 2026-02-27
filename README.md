@@ -8,19 +8,20 @@ This repository is a prototype for a fashion recommendation system that combines
 
 - `clothes_data/` – static JSON files (`all_clothing_types.json`, `all_material_data.json`) containing types, materials and other clothing info scraped from websites. Used by the prompt builder.
 
-- `generated_img_data/` – (not currently used) intended for storing generated images if moved out of `/api_out`.
-
 - `api_out/` – output directory for images produced by the Stable Diffusion WebUI. Sub‑folder `txt2img/` holds PNG files that are served by the FastAPI endpoint.
 
-- `backend/`, `Server/`, `database-fastapi-html/`, `html-input-to-fastapi-database/`, `frontend/` – various experimental/demo folders used during development. The main application lives at the repository root; these sub‑projects are not required to run the current server.
+- `model_server/` – utilities for testing and running the local model servers; currently contains `test_ollama.py` which demonstrates calling the Ollama API.
 
-- `src/` contains the core helper scripts used by the main app:
-  * `clothes_data_crawl.py` – crawler for clothing data (currently unused by the server).
+- `data/` – project presentation file such as `finalpresentation.pdf`.
+
+- single‑file helpers at the repo root:
+  * `clothes_data_crawl.py` – crawler for clothing data (unused by production server).
   * `data_to_be_prompt.py` – provides the `clothes_data` dictionary imported by other modules.
-  * `prompt.py` – constructs the prompt sent to the LLM and extracts image prompts from the LLM’s response.
-  * `llm_model_suggest.py` – communicates with the Ollama LLM API, parses the text output into explanations and image prompts, and returns the three suggestions used by the UI.
+  * `prompt.py` – builds prompts for the LLM and extracts image prompts from responses.
+  * `llm_model_suggest.py` – handles communication with the Ollama server and parsing of its output.
+  * `google_weather.py` – wrapper around the OpenWeatherMap API.
 
-- `main.py` – FastAPI application. Handles form submission, fetches weather, calls the LLM, generates images via the Stable Diffusion WebUI, and renders HTML templates (`templates/index.html` and `templates/result.html`).
+- `main.py` – FastAPI application. Handles form submission, fetches weather, calls the LLM, triggers image generation, and renders HTML templates (`templates/index.html` and `templates/result.html`).
 
 - `templates/` – Jinja2 templates used by the FastAPI server.
 
@@ -86,8 +87,9 @@ This repository is a prototype for a fashion recommendation system that combines
 
 ## Notes & Future Work
 
-* The project is designed to be completely offline; you can substitute any Ollama‑compatible model and any image model that exposes the same HTTP API.
-* Several subfolders contain earlier experiments (FastAPI demos, database examples). They can be removed or merged as development continues.
+* The project is designed to be completely offline; all models run as local servers (Ollama for text, AUTOMATIC1111 WebUI for images). If a server is not running you may see connection errors – contact the developer to ensure the model processes are are started before testing.
+* The local‑service architecture means the app is sensitive to port changes; override endpoints with environment variables if necessary.
+* Old experiment folders have mostly been removed; keep `model_server` for any future tooling around the local model APIs.
 * Image files are currently stored on disk; a future enhancement could save them in a database or cloud storage.
 * The prompt templates in `prompt.py` are simple; feel free to refine them for better fashion advice.
 
