@@ -11,6 +11,8 @@ load_dotenv()
 
 from data_to_be_prompt import clothes_data
 from llm_model_suggest import main as llm_main
+import requests
+import base64
 from google_weather import get_weather
 
 
@@ -60,27 +62,45 @@ class SubmitRequest(BaseModel):
 
 
 # ---------------- MAIN GENERATION ENDPOINT ----------------
+
 @app.post("/submit")
 async def submit_form(submit: SubmitRequest, request: Request):
-
     try:
         user_input = submit.submit_data.dict()
-
         lat = submit.location.latitude
         lon = submit.location.longitude
-
-        # 🔥 NEW: Google-based weather
         weather_data = get_weather(lat, lon)
-
-        # Stateless user (no login)
         user_data = {}
-
         suggestions = llm_main(
             user_data,
             weather_data,
             clothes_data,
             user_input
         )
+
+        # Generate images using local SD WebUI for each suggestion
+        SD_WEBUI_URL = os.getenv("SD_WEBUI_URL", "http://127.0.0.1:7860/sdapi/v1/txt2img")
+        image_dir = os.path.join(BASE_DIR, "api_out", "txt2img")
+        os.makedirs(image_dir, exist_ok=True)
+        for idx, item in enumerate(suggestions):
+            prompt = item["image_prompt"]
+            try:
+                resp = requests.post(SD_WEBUI_URL, json={"prompt": prompt, "steps": 20}, timeout=120)
+                resp.raise_for_status()
+                data = resp.json()
+                if "images" in data and data["images"]:
+                    img_b64 = data["images"][0]
+                    img_bytes = base64.b64decode(img_b64.split(",")[-1])
+                    filename = f"outfit_{idx+1}.png"
+                    filepath = os.path.join(image_dir, filename)
+                    with open(filepath, "wb") as f:
+                        f.write(img_bytes)
+                    item["image_url"] = f"/download/{filename}"
+                else:
+                    item["image_url"] = None
+            except Exception as e:
+                logger.error(f"Image gen failed for suggestion {idx+1}: {e}")
+                item["image_url"] = None
 
         return templates.TemplateResponse(
             "result.html",
@@ -89,7 +109,6 @@ async def submit_form(submit: SubmitRequest, request: Request):
                 "suggestions": suggestions,
             }
         )
-
     except Exception as e:
         logger.error(f"Submit error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

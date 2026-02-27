@@ -39,14 +39,35 @@
         - here is where the prompts is build for clothes suggestion and also
         - for image to be generate
 
-## Setup and Run
 
-1. Install dependencies: `pip install -r requirements.txt`
-2. Set environment variables:
+## Setup and Run (Local, Free)
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Install and run Ollama (for LLM):
+   - Download and install from https://ollama.com/
+   - Start Ollama and pull a model (e.g. llama3):
+     ```bash
+     ollama run llama3
+     ```
+   - Ollama API runs at http://localhost:11434 by default.
+
+3. Install and run AUTOMATIC1111 Stable Diffusion WebUI (for image generation):
+   - Follow instructions at https://github.com/AUTOMATIC1111/stable-diffusion-webui
+   - Start the WebUI (default API: http://127.0.0.1:7860)
+
+4. Set environment variables (in .env):
    - `API_KEY_WEATHER`: OpenWeatherMap API key (get from https://openweathermap.org/api)
-   - `API_KEY`: Google Gemini API key
-3. Run the server: `uvicorn main:app --reload`
-4. Open http://localhost:8000 in browser.
+   - Optional: `OLLAMA_API_URL`, `OLLAMA_MODEL`, `SD_WEBUI_URL` if not using defaults
 
-Note: Image generation is now free using Puter.js (user-pays model), no Stability API key needed.
-Note: Gemini API has free tier limits. If you hit quota, wait for reset or upgrade your plan at https://ai.google.dev.
+5. Run the FastAPI server:
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+6. Open http://localhost:8000 in your browser.
+
+**Note:** All LLM and image generation is now fully local and free. No paid API keys required for LLM or image gen.

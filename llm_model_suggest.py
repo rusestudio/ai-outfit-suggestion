@@ -1,23 +1,31 @@
+
 import os
 import re
-
-import google.generativeai as genai
-
+import requests
 from data_to_be_prompt import clothes_data
 from prompt import build_prompt, image_prompt
 
-API_KEY = os.getenv("API_KEY")
+# Ollama API endpoint and model (from .env or defaults)
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL")
 
-# send prompt to gemini
+# Send prompt to Ollama LLM (local)
 def get_result(prompt: str):
-    if not API_KEY:
-        raise ValueError("API_KEY environment variable not set")
-    genai.configure(api_key=API_KEY)
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    response = model.generate_content(prompt)
-    return response.text
+    payload = {
+        "model": OLLAMA_MODEL,
+        "prompt": prompt,
+        "stream": False
+    }
+    try:
+        resp = requests.post(OLLAMA_API_URL, json=payload, timeout=60)
+        resp.raise_for_status()
+        data = resp.json()
+        # Ollama returns {"response": "..."}
+        return data.get("response", "")
+    except Exception as e:
+        raise RuntimeError(f"Ollama API error: {e}")
 
-#save explaination
+# Parse LLM result into explanations and image prompts
 def save_explaination(result):
     # Split the result by image prompts (should separate each outfit block)
     blocks = result.strip().split("**Image Prompt:**")
@@ -60,14 +68,13 @@ def save_explaination(result):
     return explanations
 
 def main(user, weather_data, clothes_data, user_input):
-    # call def build prompt
+    # Build prompt for LLM
     prompt = build_prompt(weather_data, clothes_data, user_input)
-    # call gemini
+    # Call Ollama LLM
     result = get_result(prompt)
-    #print(result)
-    #save explanation
+    # Parse explanations
     explanations = save_explaination(result)
-    # prompt_text
+    # Parse image prompts (for SD WebUI)
     imageprompts = image_prompt(result)
 
     suggestions = []

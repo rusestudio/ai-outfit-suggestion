@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Result</title>
-    <script src="https://js.puter.com/v2/"></script>
+    <!-- Removed Puter.js: images are now generated server-side and served as files -->
   <style>
         * {
             margin: 0;
@@ -185,8 +185,12 @@
         <div class="results-grid">
             {% for item in suggestions %}
                 <div class="result-card">
-                    <div id="image-container-{{ loop.index }}" class="image-container">
-                        <div class="loading">Generating image...</div>
+                    <div class="image-container">
+                        {% if item.image_url %}
+                            <img src="{{ item.image_url }}" class="result-image" alt="Outfit image" />
+                        {% else %}
+                            <div class="loading">Image not available</div>
+                        {% endif %}
                     </div>
                     <p class="result-text">{{ item.explanation }}</p>
                 </div>
@@ -194,27 +198,6 @@
         </div>
     </div>
     
-    <script>
-        const suggestions = {{ suggestions | tojson }};
-        
-        async function generateImage(prompt, containerId) {
-            const container = document.getElementById(containerId);
-            try {
-                const imageElement = await puter.ai.txt2img(prompt, { model: "flux-1-schnell", quality: "standard" });
-                imageElement.className = 'result-image';
-                container.innerHTML = '';
-                container.appendChild(imageElement);
-            } catch (error) {
-                container.innerHTML = '<div class="loading">Failed to generate image</div>';
-                console.error('Image generation failed:', error);
-            }
-        }
-        
-        // Generate images for all suggestions
-        suggestions.forEach((item, index) => {
-            const containerId = `image-container-${index + 1}`;
-            generateImage(item.image_prompt, containerId);
-        });
-    </script>
+    <!-- JS removed: images are now generated server-side -->
 </body>
 </html>
